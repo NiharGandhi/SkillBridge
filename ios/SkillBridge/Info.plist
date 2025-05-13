@@ -7,7 +7,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>SkillSy</string>
+    <string>SkillBridge</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -27,8 +27,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>skillsy</string>
-          <string>com.nihargandhi.SkillSy</string>
+          <string>skillbridge</string>
+          <string>com.nihargandhi.skillbridge</string>
         </array>
       </dict>
     </array>

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "SkillSy",
-    "slug": "SkillSy",
-    "scheme": "skillsy",
+    "name": "SkillBridge",
+    "slug": "skillbridge",
+    "scheme": "skillbridge",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.nihargandhi.SkillSy",
+      "bundleIdentifier": "com.nihargandhi.skillbridge",
       "splash": {
         "image": "./assets/splash-icon.png",
         "resizeMode": "contain",
@@ -36,7 +36,7 @@
         }
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.nihargandhi.SkillSy"
+      "package": "com.nihargandhi.skillbridge"
     },
     "web": {
       "favicon": "./assets/favicon.png"

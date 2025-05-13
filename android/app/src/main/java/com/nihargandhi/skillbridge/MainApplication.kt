@@ -1,4 +1,4 @@
-package com.nihargandhi.SkillSy
+package com.nihargandhi.skillbridge
 
 import android.app.Application
 import android.content.res.Configuration

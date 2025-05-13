@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.nihargandhi.SkillSy'
+    namespace 'com.nihargandhi.skillbridge'
     defaultConfig {
-        applicationId 'com.nihargandhi.SkillSy'
+        applicationId 'com.nihargandhi.skillbridge'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

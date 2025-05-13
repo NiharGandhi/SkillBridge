@@ -8,28 +8,28 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		146DDA78EB5EE4D101938D56 /* libPods-SkillSy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 80C95A3CFC7A791625F841D6 /* libPods-SkillSy.a */; };
+		248FE2701D7345BA51AB0C25 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18764F096CC435D87F8305CC /* ExpoModulesProvider.swift */; };
+		2585E0A2A8BF51CE5B93EF18 /* libPods-SkillBridge.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 728971C275DB4D387B686970 /* libPods-SkillBridge.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		589B132FCFFC3DD5DF061A37 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3076BB2160D64F0E0FCB74A0 /* PrivacyInfo.xcprivacy */; };
+		6039D888F03DBAB24D2F227D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 72DEF747BBAF6DC9E70A0CF3 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		FEADCFC66EFF87AEE4DF4F2B /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE32B7AC0B2AF20009428BBA /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* SkillSy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkillSy.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SkillSy/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SkillSy/Info.plist; sourceTree = "<group>"; };
-		17A9D111DD2653048C75E3A6 /* Pods-SkillSy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SkillSy.debug.xcconfig"; path = "Target Support Files/Pods-SkillSy/Pods-SkillSy.debug.xcconfig"; sourceTree = "<group>"; };
-		3076BB2160D64F0E0FCB74A0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = SkillSy/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		3D9F365E8186386C374B8E23 /* Pods-SkillSy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SkillSy.release.xcconfig"; path = "Target Support Files/Pods-SkillSy/Pods-SkillSy.release.xcconfig"; sourceTree = "<group>"; };
-		80C95A3CFC7A791625F841D6 /* libPods-SkillSy.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SkillSy.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = SkillSy/SplashScreen.storyboard; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* SkillBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SkillBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = SkillBridge/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = SkillBridge/Info.plist; sourceTree = "<group>"; };
+		18764F096CC435D87F8305CC /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-SkillBridge/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		3A5E156B66BDEF116C029E44 /* Pods-SkillBridge.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SkillBridge.release.xcconfig"; path = "Target Support Files/Pods-SkillBridge/Pods-SkillBridge.release.xcconfig"; sourceTree = "<group>"; };
+		728971C275DB4D387B686970 /* libPods-SkillBridge.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SkillBridge.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		72DEF747BBAF6DC9E70A0CF3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = SkillBridge/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = SkillBridge/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SkillSy/AppDelegate.swift; sourceTree = "<group>"; };
-		F11748442D0722820044C1D9 /* SkillSy-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SkillSy-Bridging-Header.h"; path = "SkillSy/SkillSy-Bridging-Header.h"; sourceTree = "<group>"; };
-		FE32B7AC0B2AF20009428BBA /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-SkillSy/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SkillBridge/AppDelegate.swift; sourceTree = "<group>"; };
+		F11748442D0722820044C1D9 /* SkillBridge-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SkillBridge-Bridging-Header.h"; path = "SkillBridge/SkillBridge-Bridging-Header.h"; sourceTree = "<group>"; };
+		F4A05950A05AA47ACF505E70 /* Pods-SkillBridge.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SkillBridge.debug.xcconfig"; path = "Target Support Files/Pods-SkillBridge/Pods-SkillBridge.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,41 +37,49 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				146DDA78EB5EE4D101938D56 /* libPods-SkillSy.a in Frameworks */,
+				2585E0A2A8BF51CE5B93EF18 /* libPods-SkillBridge.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13B07FAE1A68108700A75B9A /* SkillSy */ = {
+		13B07FAE1A68108700A75B9A /* SkillBridge */ = {
 			isa = PBXGroup;
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
-				F11748442D0722820044C1D9 /* SkillSy-Bridging-Header.h */,
+				F11748442D0722820044C1D9 /* SkillBridge-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				3076BB2160D64F0E0FCB74A0 /* PrivacyInfo.xcprivacy */,
+				72DEF747BBAF6DC9E70A0CF3 /* PrivacyInfo.xcprivacy */,
 			);
-			name = SkillSy;
+			name = SkillBridge;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				80C95A3CFC7A791625F841D6 /* libPods-SkillSy.a */,
+				728971C275DB4D387B686970 /* libPods-SkillBridge.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		330EBD061CF7890C42D7307C /* Pods */ = {
+		4EB5AA0721E0EF7A8CBBA2CA /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				17A9D111DD2653048C75E3A6 /* Pods-SkillSy.debug.xcconfig */,
-				3D9F365E8186386C374B8E23 /* Pods-SkillSy.release.xcconfig */,
+				E86CDFD676A1445F0469AC10 /* SkillBridge */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		761621EB413FF22C450C2AEE /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				F4A05950A05AA47ACF505E70 /* Pods-SkillBridge.debug.xcconfig */,
+				3A5E156B66BDEF116C029E44 /* Pods-SkillBridge.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -87,12 +95,12 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* SkillSy */,
+				13B07FAE1A68108700A75B9A /* SkillBridge */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				330EBD061CF7890C42D7307C /* Pods */,
-				C9A23389785D753C3F452EB5 /* ExpoModulesProviders */,
+				761621EB413FF22C450C2AEE /* Pods */,
+				4EB5AA0721E0EF7A8CBBA2CA /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -102,7 +110,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* SkillSy.app */,
+				13B07F961A680F5B00A75B9A /* SkillBridge.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -113,48 +121,40 @@
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
 			);
 			name = Supporting;
-			path = SkillSy/Supporting;
+			path = SkillBridge/Supporting;
 			sourceTree = "<group>";
 		};
-		C9A23389785D753C3F452EB5 /* ExpoModulesProviders */ = {
+		E86CDFD676A1445F0469AC10 /* SkillBridge */ = {
 			isa = PBXGroup;
 			children = (
-				CDFFD240132C06285E9BEAA1 /* SkillSy */,
+				18764F096CC435D87F8305CC /* ExpoModulesProvider.swift */,
 			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		CDFFD240132C06285E9BEAA1 /* SkillSy */ = {
-			isa = PBXGroup;
-			children = (
-				FE32B7AC0B2AF20009428BBA /* ExpoModulesProvider.swift */,
-			);
-			name = SkillSy;
+			name = SkillBridge;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* SkillSy */ = {
+		13B07F861A680F5B00A75B9A /* SkillBridge */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SkillSy" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SkillBridge" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				4D4FE5DB688D0F3B250DF414 /* [Expo] Configure project */,
+				53316D4DB3293D4BAA866677 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				BC01B19105B2EEE90258842C /* [CP] Embed Pods Frameworks */,
+				1168B4C9D66D05C0E950C7F8 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = SkillSy;
-			productName = SkillSy;
-			productReference = 13B07F961A680F5B00A75B9A /* SkillSy.app */;
+			name = SkillBridge;
+			productName = SkillBridge;
+			productReference = 13B07F961A680F5B00A75B9A /* SkillBridge.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -170,7 +170,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "SkillSy" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "SkillBridge" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -183,7 +183,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* SkillSy */,
+				13B07F861A680F5B00A75B9A /* SkillBridge */,
 			);
 		};
 /* End PBXProject section */
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				589B132FCFFC3DD5DF061A37 /* PrivacyInfo.xcprivacy in Resources */,
+				6039D888F03DBAB24D2F227D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,14 +233,32 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-SkillSy-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-SkillBridge-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4D4FE5DB688D0F3B250DF414 /* [Expo] Configure project */ = {
+		1168B4C9D66D05C0E950C7F8 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SkillBridge/Pods-SkillBridge-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SkillBridge/Pods-SkillBridge-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		53316D4DB3293D4BAA866677 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -257,7 +275,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-SkillSy/expo-configure-project.sh\"\n";
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-SkillBridge/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -265,7 +283,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SkillSy/Pods-SkillSy-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-SkillBridge/Pods-SkillBridge-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoFileSystem/ExpoFileSystem_privacy.bundle",
@@ -290,25 +308,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SkillSy/Pods-SkillSy-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		BC01B19105B2EEE90258842C /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SkillSy/Pods-SkillSy-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SkillSy/Pods-SkillSy-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SkillBridge/Pods-SkillBridge-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -319,7 +319,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				FEADCFC66EFF87AEE4DF4F2B /* ExpoModulesProvider.swift in Sources */,
+				248FE2701D7345BA51AB0C25 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,18 +328,18 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 17A9D111DD2653048C75E3A6 /* Pods-SkillSy.debug.xcconfig */;
+			baseConfigurationReference = F4A05950A05AA47ACF505E70 /* Pods-SkillBridge.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = SkillSy/SkillSy.entitlements;
+				CODE_SIGN_ENTITLEMENTS = SkillBridge/SkillBridge.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
-				INFOPLIST_FILE = SkillSy/Info.plist;
+				INFOPLIST_FILE = SkillBridge/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -352,9 +352,9 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.nihargandhi.SkillSy;
-				PRODUCT_NAME = SkillSy;
-				SWIFT_OBJC_BRIDGING_HEADER = "SkillSy/SkillSy-Bridging-Header.h";
+				PRODUCT_BUNDLE_IDENTIFIER = com.nihargandhi.skillbridge;
+				PRODUCT_NAME = SkillBridge;
+				SWIFT_OBJC_BRIDGING_HEADER = "SkillBridge/SkillBridge-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -364,13 +364,13 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3D9F365E8186386C374B8E23 /* Pods-SkillSy.release.xcconfig */;
+			baseConfigurationReference = 3A5E156B66BDEF116C029E44 /* Pods-SkillBridge.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = SkillSy/SkillSy.entitlements;
+				CODE_SIGN_ENTITLEMENTS = SkillBridge/SkillBridge.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = SkillSy/Info.plist;
+				INFOPLIST_FILE = SkillBridge/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -383,9 +383,9 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.nihargandhi.SkillSy;
-				PRODUCT_NAME = SkillSy;
-				SWIFT_OBJC_BRIDGING_HEADER = "SkillSy/SkillSy-Bridging-Header.h";
+				PRODUCT_BUNDLE_IDENTIFIER = com.nihargandhi.skillbridge;
+				PRODUCT_NAME = SkillBridge;
+				SWIFT_OBJC_BRIDGING_HEADER = "SkillBridge/SkillBridge-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -519,7 +519,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SkillSy" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "SkillBridge" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -528,7 +528,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "SkillSy" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "SkillBridge" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

@@ -1,4 +1,4 @@
-package com.nihargandhi.SkillSy
+package com.nihargandhi.skillbridge
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
