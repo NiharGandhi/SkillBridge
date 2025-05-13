@@ -204,8 +204,8 @@ export default function RegisterScreen() {
               <Text style={[styles.footerText, { color: colors.subtext }]}>
                 Already have an account?
               </Text>
-              <Link href="/login" asChild>
-                <Text style={[styles.link, { color: colors.primary }]}>
+              <Link href="/login" asChild style={[styles.link, { color: colors.text }]}>
+                <Text>
                   Sign In
                 </Text>
               </Link>

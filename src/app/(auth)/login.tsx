@@ -18,26 +18,26 @@ export default function LoginScreen() {
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
-    
+
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSignIn = async () => {
     if (!validate()) return;
-    
+
     setLoading(true);
     try {
       await signIn(email, password);
@@ -59,7 +59,7 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
@@ -71,7 +71,7 @@ export default function LoginScreen() {
               Connect, learn, and grow your career
             </Text>
           </View>
-          
+
           <View style={styles.form}>
             <Input
               label="Email"
@@ -81,7 +81,7 @@ export default function LoginScreen() {
               keyboardType="email-address"
               error={errors.email}
             />
-            
+
             <Input
               label="Password"
               value={password}
@@ -90,13 +90,13 @@ export default function LoginScreen() {
               secureTextEntry
               error={errors.password}
             />
-            
-            <Link href="/forgot-password" asChild>
-              <Text style={[styles.forgotPassword, { color: colors.primary }]}>
+
+            <Link href="/forgot-password" asChild style={[styles.forgotPassword, { color: colors.text }]}>
+              <Text >
                 Forgot password?
               </Text>
             </Link>
-            
+
             <Button
               title="Sign In"
               onPress={handleSignIn}
@@ -104,13 +104,13 @@ export default function LoginScreen() {
               fullWidth
               style={styles.submitButton}
             />
-            
+
             <View style={styles.footer}>
               <Text style={[styles.footerText, { color: colors.subtext }]}>
                 Don't have an account?
               </Text>
-              <Link href="/register" asChild>
-                <Text style={[styles.link, { color: colors.primary }]}>
+              <Link href="/register" asChild style={[ styles.link, { color: colors.text }]}>
+                <Text>
                   Create Account
                 </Text>
               </Link>
