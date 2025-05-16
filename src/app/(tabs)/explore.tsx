@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Database } from '../../types/supabase';
-import { useTheme } from '../../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
-import { Button } from '../../components/ui/Button';
 import { OpportunityCard } from '../../components/screens/OpportunityCard';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -19,6 +18,30 @@ type Opportunity = Database['public']['Tables']['opportunities']['Row'] & {
 
 const OPPORTUNITY_TYPES = ['All Types', 'Internship', 'Project', 'Job'];
 const LOCATIONS = ['All Locations', 'Remote', 'On-site'];
+const { width } = Dimensions.get('window');
+
+const OpportunitySkeleton = ({ colors }: { colors: any }) => {
+  return (
+    <View style={[styles.skeletonContainer, { backgroundColor: colors.card }]}>
+      <View style={styles.skeletonHeader}>
+        <View style={[styles.skeletonLogo, { backgroundColor: colors.skeleton }]} />
+        <View>
+          <View style={[styles.skeletonTextSm, { backgroundColor: colors.skeleton }]} />
+          <View style={[styles.skeletonTextLg, { backgroundColor: colors.skeleton }]} />
+        </View>
+      </View>
+      <View style={styles.skeletonBody}>
+        <View style={[styles.skeletonTextMd, { backgroundColor: colors.skeleton }]} />
+        <View style={[styles.skeletonTextMd, { backgroundColor: colors.skeleton }]} />
+        <View style={[styles.skeletonTextMd, { backgroundColor: colors.skeleton }]} />
+      </View>
+      <View style={styles.skeletonFooter}>
+        <View style={[styles.skeletonPill, { backgroundColor: colors.skeleton }]} />
+        <View style={[styles.skeletonPill, { backgroundColor: colors.skeleton }]} />
+      </View>
+    </View>
+  );
+};
 
 export default function ExploreScreen() {
   const { colors } = useTheme();
@@ -201,7 +224,15 @@ export default function ExploreScreen() {
         />
       </View>
 
-      {filteredOpportunities.length === 0 ? (
+      {loading ? (
+        <FlatList
+          data={[1, 2, 3, 4]} // Render 4 skeleton items
+          renderItem={() => <OpportunitySkeleton colors={colors} />}
+          keyExtractor={(item) => item.toString()}
+          contentContainerStyle={styles.opportunityList}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : filteredOpportunities.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={[styles.emptyText, { color: colors.subtext }]}>
             No opportunities found matching your criteria.
@@ -344,5 +375,55 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontSize: 16,
     textAlign: 'center',
+  },
+  skeletonContainer: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  skeletonHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  skeletonLogo: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  skeletonTextSm: {
+    height: 12,
+    width: width * 0.5,
+    borderRadius: 4,
+    marginBottom: 6,
+  },
+  skeletonTextLg: {
+    height: 16,
+    width: width * 0.7,
+    borderRadius: 4,
+  },
+  skeletonTextMd: {
+    height: 12,
+    width: width * 0.8,
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  skeletonBody: {
+    marginBottom: 16,
+  },
+  skeletonFooter: {
+    flexDirection: 'row',
+  },
+  skeletonPill: {
+    height: 24,
+    width: 80,
+    borderRadius: 12,
+    marginRight: 8,
   },
 });

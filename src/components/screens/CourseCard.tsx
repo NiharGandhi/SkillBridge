@@ -1,8 +1,7 @@
-// components/screens/CourseCard.tsx
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { useTheme } from '../../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 interface CourseCardProps {
   id: string;

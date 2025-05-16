@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { useTheme } from '../../../context/ThemeContext';
-
+import { useTheme } from '../../context/ThemeContext';
+import { TouchableOpacity } from 'react-native';
+import { Input } from '../../components/ui/Input';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
 const SKILLS = [
   'JavaScript', 'React', 'Node.js', 'Python', 'Machine Learning',
@@ -299,13 +305,7 @@ export default function StudentOnboarding() {
 }
 
 // Need to import TouchableOpacity
-import { TouchableOpacity } from 'react-native';
-import { Input } from '../../components/ui/Input';
-import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../../context/AuthContext';
+
 
 const styles = StyleSheet.create({
   container: {

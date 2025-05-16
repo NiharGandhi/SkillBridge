@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Database } from '../../types/supabase';
-import { useTheme } from '../../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import { CourseCard } from '../../components/screens/CourseCard';
 import { Avatar } from '../../components/ui/Avatar';

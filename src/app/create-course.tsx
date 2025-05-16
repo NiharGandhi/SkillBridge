@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { useTheme } from '../../context/ThemeContext';
-import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Button } from '../components/ui/Button';
 import { GoogleGenAI } from '@google/genai';
@@ -75,8 +75,6 @@ export default function CreateCourseScreen() {
                 }
 
                 const aiCourse = JSON.parse(jsonString) as AICourseResponse;
-
-                console.log("ai:", aiCourse)
 
                 if (!aiCourse.title || !aiCourse.description || !aiCourse.chapters?.length) {
                     throw new Error("Invalid AI response structure");

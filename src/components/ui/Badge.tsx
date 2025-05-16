@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { useTheme } from '../../../context/ThemeContext';
+import { View, Text, ViewStyle, TextStyle } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 
 type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'outline';
 type BadgeSize = 'small' | 'medium' | 'large';

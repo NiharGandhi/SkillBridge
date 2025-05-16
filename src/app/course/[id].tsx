@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
-import { useTheme } from '../../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import Feather from '@expo/vector-icons/Feather';
 import Markdown from 'react-native-markdown-display';
@@ -174,7 +174,6 @@ export default function CourseDetailScreen() {
       router.push(`/course/${id}/chapter/${nextChapter.id}`);
     } catch (error) {
       Alert.alert('Error', 'Failed to start course. Please try again.');
-      console.log(error);
     }
   };
 

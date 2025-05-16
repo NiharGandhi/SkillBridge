@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Database } from '../../../types/supabase';
-import { useTheme } from '../../../../context/ThemeContext';
-import { useAuth } from '../../../../context/AuthContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { useAuth } from '../../../context/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { Card } from '../../../components/ui/Card';
 import { Avatar } from '../../../components/ui/Avatar';
@@ -194,7 +194,6 @@ const CompanyApplicantsScreen = () => {
             await fetchApplications();
 
             if (error) {
-                console.log("error", error);
                 throw error
             };
 

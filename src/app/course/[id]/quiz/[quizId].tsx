@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import Feather from '@expo/vector-icons/Feather';
 import { Database } from '../../../../types/supabase';
-import { useTheme } from '../../../../../context/ThemeContext';
+import { useTheme } from '../../../../context/ThemeContext';
 import { supabase } from '../../../../lib/supabase';
 
 type QuizQuestion = Database['public']['Tables']['quiz_questions']['Row'];

@@ -17,7 +17,8 @@ const lightTheme = {
   error: '#FF3B30',
   highlight: '#007AFF',
   shadow: 'rgba(0, 0, 0, 0.1)',
-  filter: '#30D158'
+  filter: '#30D158',
+  skeleton: '#e1e1e1', // light gray for light mode
 };
 
 const darkTheme = {
@@ -35,7 +36,8 @@ const darkTheme = {
   error: '#D32F2F',
   highlight: '#3700B3',
   shadow: 'rgba(0, 0, 0, 0.8)',
-  filter: '#BB86FC' // Using primary color for filters
+  filter: '#BB86FC', // Using primary color for filters,
+  skeleton: '#333333', // dark gray for dark mode
 };
 
 // Create theme context
@@ -48,7 +50,7 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType>({
   isDark: false,
   colors: lightTheme,
-  toggleTheme: () => {},
+  toggleTheme: () => { },
 });
 
 export const useTheme = () => useContext(ThemeContext);

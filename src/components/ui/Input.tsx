@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   Platform
 } from 'react-native';
-import { useTheme } from '../../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 import Entypo from '@expo/vector-icons/Entypo';
 
 interface InputProps {

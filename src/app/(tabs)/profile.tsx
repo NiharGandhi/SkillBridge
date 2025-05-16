@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Database } from '../../types/supabase';
-import { useTheme } from '../../../context/ThemeContext';
-import { useAuth } from '../../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Card } from '../../components/ui/Card';
 import { Avatar } from '../../components/ui/Avatar';
@@ -14,8 +14,10 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { MaterialIcons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
+import { CoursesCarousel } from '../../components/screens/CoursesCarousel';
 
 type Profile = Database['public']['Tables']['profiles']['Row'] & {
   company?: {
@@ -25,6 +27,35 @@ type Profile = Database['public']['Tables']['profiles']['Row'] & {
     industry: string | null;
     verified: boolean;
   } | null;
+};
+
+type Course = {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail_url: string | null;
+  progress_percentage?: number;
+  is_instructor?: boolean;
+};
+
+type CourseFromProgress = {
+  course_id: string;
+  progress_percentage: number;
+  courses: {
+    id: string;
+    title: string;
+    description: string;
+    thumbnail_url: string | null;
+    instructor_id: string;
+  };
+};
+
+type CourseFromQuery = {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail_url: string | null;
+  instructor_id?: string;
 };
 
 export default function ProfileScreen() {
@@ -38,11 +69,84 @@ export default function ProfileScreen() {
   const [hiredCount, setHiredCount] = useState(0);
   const [applicantsCount, setApplicantsCount] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
+  const [createdCourses, setCreatedCourses] = useState<Course[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(false);
 
+  // Update your useEffect hooks at the top of the component
   useEffect(() => {
     fetchProfile();
-    fetchStats();
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    if (profile) {
+      fetchStats();
+      fetchCourses();
+    }
+  }, [profile]);
+
+  const fetchCourses = async () => {
+    setCoursesLoading(true);
+    try {
+      // Fetch all courses user is enrolled in (for both students and companies)
+      const { data: enrolledData, error: enrolledError } = await supabase
+        .from('progress')
+        .select(`
+          course_id,
+          progress_percentage,
+          courses:course_id (
+            id,
+            title,
+            description,
+            thumbnail_url,
+            instructor_id
+          )
+        `)
+        .eq('user_id', user?.id) as { data: CourseFromProgress[] | null, error: any };;
+
+      if (enrolledError) throw enrolledError;
+
+      const enrolledCoursesData = (enrolledData || []).map(item => ({
+        id: item.courses.id,
+        title: item.courses.title,
+        description: item.courses.description,
+        thumbnail_url: item.courses.thumbnail_url,
+        progress_percentage: item.progress_percentage,
+        is_instructor: item.courses.instructor_id === user?.id
+      }));
+
+      setEnrolledCourses(enrolledCoursesData);
+
+      // Fetch all courses created by user (for both students and companies)
+      const { data: createdData, error: createdError } = await supabase
+        .from('courses')
+        .select('id, title, description, thumbnail_url')
+        .eq('instructor_id', user?.id) as { data: CourseFromQuery[] | null, error: any };
+
+      if (createdError) throw createdError;
+
+      const createdCoursesData = (createdData || []).map(course => ({
+        ...course,
+        is_instructor: true
+      }));
+
+      setCreatedCourses(createdCoursesData);
+
+      // Combine all courses (for "View All" functionality)
+      setAllCourses([
+        ...enrolledCoursesData,
+        ...(createdCoursesData || []).filter(
+          created => !enrolledCoursesData.some(e => e.id === created.id)
+        )
+      ]);
+
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    } finally {
+      setCoursesLoading(false);
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -96,7 +200,6 @@ export default function ProfileScreen() {
       } else {
 
         if (!profile?.company?.id) {
-          console.log('No company ID found in profile');
           return;
         }
 
@@ -113,7 +216,6 @@ export default function ProfileScreen() {
           .select('id', { count: 'exact' })
           .eq('company_id', profile.company.id);
 
-        console.log('Applicants count:', applicantsCount); // Debug log
         setApplicantsCount(applicantsCount || 0);
 
         // Count hired applicants
@@ -262,15 +364,24 @@ export default function ProfileScreen() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await fetchProfile();
-      await fetchStats();
+      setProfile(null);
+    setCompletedCourses(0);
+    setAppliedJobs(0);
+    setPostedJobs(0);
+    setHiredCount(0);
+    setApplicantsCount(0);
+    setAllCourses([]);
+    setEnrolledCourses([]);
+    setCreatedCourses([]);
+    
+    // Then fetch fresh data
+    await fetchProfile();
     } catch (error) {
       console.error('Error refreshing:', error);
     } finally {
       setRefreshing(false);
     }
   };
-
 
   if (loading) {
     return (
@@ -559,25 +670,6 @@ export default function ProfileScreen() {
                         )}
                       </View>
                     </View>
-
-                    <View style={styles.companyStats}>
-                      <TouchableOpacity
-                        style={[styles.companyStatItem, { backgroundColor: colors.primary + '10' }]}
-                        onPress={handleViewPostedJobs}
-                      >
-                        <Text style={[styles.companyStatValue, { color: colors.primary }]}>{postedJobs}</Text>
-                        <Text style={[styles.companyStatLabel, { color: colors.subtext }]}>Posted Jobs</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={[styles.companyStatItem, { backgroundColor: colors.success + '10' }]}
-                        onPress={handleViewApplicants}
-                      >
-                        <Text style={[styles.companyStatValue, { color: colors.success }]}>{applicantsCount}</Text>
-                        <Text style={[styles.companyStatLabel, { color: colors.subtext }]}>Applicants</Text>
-                      </TouchableOpacity>
-                    </View>
-
                     <View style={styles.companyActions}>
                       <Button
                         title="View Posted Jobs"
@@ -640,6 +732,26 @@ export default function ProfileScreen() {
                 </View>
               </Card>
             </>
+          )}
+
+          {/* Enrolled Courses */}
+          {user?.role === "student" &&
+            <CoursesCarousel
+              title="My Courses"
+              courses={enrolledCourses}
+              loading={coursesLoading}
+              onViewAll={() => router.push('/learn')}
+              showProgress={true}
+            />}
+
+          {/* Created Courses - only show if user has created courses */}
+          {createdCourses.length > 0 && (
+            <CoursesCarousel
+              title="Created Courses"
+              courses={createdCourses}
+              loading={coursesLoading}
+              onViewAll={() => router.push('/created-courses')}
+            />
           )}
         </ScrollView>
       </ScrollView>
@@ -886,5 +998,64 @@ const styles = StyleSheet.create({
   },
   createCompanyButton: {
     marginTop: 12,
+  },
+  coursesScroll: {
+    paddingVertical: 8,
+    paddingRight: 16,
+  },
+  courseCard: {
+    width: 220,
+    marginRight: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  courseThumbnail: {
+    width: '100%',
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  courseInfo: {
+    padding: 12,
+  },
+  courseTitle: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  courseDesc: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 13,
+    marginBottom: 12,
+    opacity: 0.8,
+  },
+  progressContainer: {
+    marginTop: 8,
+  },
+  progressBar: {
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  progressText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    textAlign: 'right',
+  },
+  instructorBadge: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    marginTop: 8,
+    textAlign: 'right',
   },
 });

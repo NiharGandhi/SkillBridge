@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { useTheme } from '../../../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import Entypo from '@expo/vector-icons/Entypo';
 import { Database } from '../../types/supabase';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { CourseCard } from '../../components/screens/CourseCard';
-
+import { Button } from '../../components/ui/Button';
 
 type Course = Database['public']['Tables']['courses']['Row'] & {
   progress?: {
@@ -37,6 +38,8 @@ export default function LearnScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedLevel, setSelectedLevel] = useState('All Levels');
+  const [refreshing, setRefreshing] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
     fetchCourses();
@@ -44,6 +47,11 @@ export default function LearnScreen() {
 
   useEffect(() => {
     filterCourses();
+    if (searchQuery.trim() !== '') {
+      setHasSearched(true);
+    } else {
+      setHasSearched(false);
+    }
   }, [searchQuery, selectedCategory, selectedLevel, courses]);
 
   const fetchCourses = async () => {
@@ -101,6 +109,26 @@ export default function LearnScreen() {
 
   const handleCoursePress = (id: string) => {
     router.push(`/course/${id}`);
+  };
+
+  const handleCreateCourse = () => {
+    router.push('/create-course');
+  };
+
+  const handleCreateAICourse = () => {
+    router.push({
+      pathname: '/create-ai-course',
+      params: { topic: searchQuery }
+    });
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setSearchQuery('');
+    setSelectedCategory('All');
+    setSelectedLevel('All Levels');
+    await fetchCourses();
+    setRefreshing(false);
   };
 
   const renderCategoryItem = ({ item }: { item: string }) => (
@@ -163,6 +191,90 @@ export default function LearnScreen() {
     </TouchableOpacity>
   );
 
+  const renderSkeletonItem = () => (
+    <View style={[styles.skeletonCard, { backgroundColor: colors.card }]}>
+      <View style={[styles.skeletonThumbnail, { backgroundColor: colors.border }]} />
+      <View style={styles.skeletonContent}>
+        <View style={[styles.skeletonTitle, { backgroundColor: colors.border }]} />
+        <View style={[styles.skeletonMeta, { backgroundColor: colors.border }]} />
+        <View style={[styles.skeletonMeta, { width: '40%', backgroundColor: colors.border }]} />
+      </View>
+    </View>
+  );
+
+  const renderEmptyList = () => {
+    if (loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          {[1, 2, 3, 4].map((item) => (
+            <React.Fragment key={item}>
+              {renderSkeletonItem()}
+            </React.Fragment>
+          ))}
+        </View>
+      );
+    }
+    
+    if (hasSearched && filteredCourses.length === 0) {
+      // Show "No courses found" with AI suggestion
+      return (
+        <View style={styles.emptySearchContainer}>
+          <View style={[styles.emptyIconContainer, { backgroundColor: colors.primary + '10' }]}>
+            <Ionicons name="search" size={40} color={colors.primary} />
+          </View>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>
+            No courses found for "{searchQuery}"
+          </Text>
+          <Text style={[styles.emptyText, { color: colors.subtext }]}>
+            Why not create this course yourself or let AI help you build it?
+          </Text>
+          <View style={styles.emptyActions}>
+            <Button
+              title="Reset Search"
+              variant="outline"
+              onPress={onRefresh}
+              style={{ ...styles.emptyButton, borderColor: colors.border }}
+              textStyle={{ color: colors.text }}
+            />
+            <Button
+              title="Create with AI"
+              onPress={handleCreateAICourse}
+              icon={<Ionicons name="flash" size={18} color="white" />}
+              iconPosition="left"
+              style={styles.emptyButton}
+            />
+          </View>
+        </View>
+      );
+    }
+
+    if (courses.length === 0) {
+      // Show "No courses available" encouragement
+      return (
+        <View style={styles.emptyStateContainer}>
+          <View style={[styles.emptyStateIconContainer, { backgroundColor: colors.primary + '10' }]}>
+            <Ionicons name="compass" size={50} color={colors.primary} />
+          </View>
+          <Text style={[styles.emptyStateTitle, { color: colors.text }]}>
+            Start Your Learning Journey
+          </Text>
+          <Text style={[styles.emptyStateText, { color: colors.subtext }]}>
+            Discover exciting courses that will expand your knowledge and skills. New content is being added regularly!
+          </Text>
+          <TouchableOpacity
+            style={[styles.refreshButton, { backgroundColor: colors.primary }]}
+            onPress={onRefresh}
+          >
+            <Ionicons name="refresh" size={20} color="white" />
+            <Text style={styles.refreshButtonText}>Refresh</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
@@ -194,6 +306,11 @@ export default function LearnScreen() {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <Ionicons name="close-circle" size={20} color={colors.subtext} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.filters}>
@@ -216,11 +333,20 @@ export default function LearnScreen() {
       </View>
 
       {filteredCourses.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyText, { color: colors.subtext }]}>
-            No courses found matching your criteria.
-          </Text>
-        </View>
+        <FlatList
+          data={[]}
+          renderItem={() => null}
+          contentContainerStyle={styles.emptyContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
+          ListEmptyComponent={renderEmptyList}
+        />
       ) : (
         <FlatList
           data={filteredCourses}
@@ -239,6 +365,14 @@ export default function LearnScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.courseList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         />
       )}
     </SafeAreaView>
@@ -317,15 +451,120 @@ const styles = StyleSheet.create({
   courseList: {
     paddingBottom: 20,
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
   emptyText: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
     textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  emptyContainer: {
+    flex: 1,
+  },
+  // Enhanced empty state when no courses available
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 40,
+  },
+  emptyStateIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  emptyStateTitle: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 22,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  emptyStateText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  refreshButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  refreshButtonText: {
+    fontFamily: 'Inter-Medium',
+    color: 'white',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  // Empty search state with AI suggestion
+  emptySearchContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 40,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 18,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  emptyActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+    width: '100%',
+    paddingHorizontal: 16,
+  },
+  emptyButton: {
+    flex: 1,
+  },
+  // Skeleton loading
+  loadingContainer: {
+    flex: 1,
+    paddingTop: 8,
+  },
+  skeletonCard: {
+    flexDirection: 'row',
+    padding: 12,
+    marginBottom: 16,
+    borderRadius: 12,
+  },
+  skeletonThumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 16,
+  },
+  skeletonContent: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 10,
+  },
+  skeletonTitle: {
+    height: 18,
+    borderRadius: 4,
+    width: '80%',
+  },
+  skeletonMeta: {
+    height: 12,
+    borderRadius: 4,
+    width: '60%',
   },
 });

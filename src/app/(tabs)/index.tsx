@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Database } from '../../types/supabase';
-import { useTheme } from '../../../context/ThemeContext';
-import { useAuth } from '../../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Avatar } from '../../components/ui/Avatar';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -12,6 +12,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 import { CourseCard } from '../../components/screens/CourseCard';
 import { Card } from '../../components/ui/Card';
 import { OpportunityCard } from '../../components/screens/OpportunityCard';
+import { CoursesCarousel } from '../../components/screens/CoursesCarousel';
 
 // Types
 type Course = Database['public']['Tables']['courses']['Row'] & {
@@ -102,29 +103,29 @@ export default function HomeScreen() {
     }
 
     const { data, error } = await supabase
-    .from('opportunities')
-    .select('*, company:companies(name, logo_url)')
-    .eq('status', 'active')
-    .overlaps('skills_required', studentSkills)
-    .limit(OPPORTUNITY_LIMIT);
+      .from('opportunities')
+      .select('*, company:companies(name, logo_url)')
+      .eq('status', 'active')
+      .overlaps('skills_required', studentSkills)
+      .limit(OPPORTUNITY_LIMIT);
 
-  if (error) throw error;
+    if (error) throw error;
 
-  // Deduplicate opportunities by ID
-  const uniqueOpportunities = Array.from(
-    new Map(data?.map(opp => [opp.id, opp])).values()
-  );
+    // Deduplicate opportunities by ID
+    const uniqueOpportunities = Array.from(
+      new Map(data?.map(opp => [opp.id, opp])).values()
+    );
 
-  // If not enough matches, supplement with default opportunities
-  if (uniqueOpportunities && uniqueOpportunities.length < 2) {
-    const defaultOpps = await fetchDefaultOpportunities();
-    const allOpps = [...uniqueOpportunities, ...defaultOpps];
-    // Deduplicate again after combining
-    return Array.from(new Map(allOpps.map(opp => [opp.id, opp])).values())
-      .slice(0, OPPORTUNITY_LIMIT);
-  }
+    // If not enough matches, supplement with default opportunities
+    if (uniqueOpportunities && uniqueOpportunities.length < 2) {
+      const defaultOpps = await fetchDefaultOpportunities();
+      const allOpps = [...uniqueOpportunities, ...defaultOpps];
+      // Deduplicate again after combining
+      return Array.from(new Map(allOpps.map(opp => [opp.id, opp])).values())
+        .slice(0, OPPORTUNITY_LIMIT);
+    }
 
-  return uniqueOpportunities || [];
+    return uniqueOpportunities || [];
 
   };
 

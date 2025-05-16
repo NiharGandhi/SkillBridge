@@ -5,7 +5,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import Markdown from 'react-native-markdown-display';
 import { Database } from '../../../../types/supabase';
 import { supabase } from '../../../../lib/supabase';
-import { useTheme } from '../../../../../context/ThemeContext';
+import { useTheme } from '../../../../context/ThemeContext';
 import Feather from '@expo/vector-icons/Feather';
 
 type Chapter = Database['public']['Tables']['chapters']['Row'];
