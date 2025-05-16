@@ -6,13 +6,13 @@ import { Database } from '../../types/supabase';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { Avatar } from '../../components/ui/Avatar';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
 import { CourseCard } from '../../components/screens/CourseCard';
 import { Card } from '../../components/ui/Card';
 import { OpportunityCard } from '../../components/screens/OpportunityCard';
-import { CoursesCarousel } from '../../components/screens/CoursesCarousel';
+import { HomeSkeleton } from '../../components/skeletons/HomeSkeleton';
+import { GreetingHeader } from '../../components/GreetinHeader';
 
 // Types
 type Course = Database['public']['Tables']['courses']['Row'] & {
@@ -42,6 +42,7 @@ export default function HomeScreen() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
 
   // Fetch data on mount
   useEffect(() => {
@@ -193,21 +194,13 @@ export default function HomeScreen() {
   };
 
   // Render functions
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <View>
-        <Text style={[styles.greeting, { color: colors.text }]}>
-          Hello, {user?.role === 'student' ? 'Student' : 'Employer'}
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.subtext }]}>
-          Welcome back to SkillBridge
-        </Text>
+  const renderHeader = () => {
+    return (
+      <View style={styles.header}>
+        <GreetingHeader />
       </View>
-      <TouchableOpacity onPress={() => router.push('/profile')}>
-        <Avatar size={40} uri={null} initials="JD" />
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   const renderSearchBar = () => (
     <TouchableOpacity
@@ -307,6 +300,14 @@ export default function HomeScreen() {
       )}
     </View>
   );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <HomeSkeleton />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

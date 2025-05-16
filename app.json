@@ -11,6 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nihargandhi.skillbridge",
+      "icon": "./assets/dark-icon.png",
       "splash": {
         "image": "./assets/splash-icon.png",
         "resizeMode": "contain",

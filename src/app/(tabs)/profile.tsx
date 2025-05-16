@@ -18,6 +18,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { CoursesCarousel } from '../../components/screens/CoursesCarousel';
+import { ProfileSkeleton } from '../../components/skeletons/ProfileSkeleton';
 
 type Profile = Database['public']['Tables']['profiles']['Row'] & {
   company?: {
@@ -365,17 +366,17 @@ export default function ProfileScreen() {
     setRefreshing(true);
     try {
       setProfile(null);
-    setCompletedCourses(0);
-    setAppliedJobs(0);
-    setPostedJobs(0);
-    setHiredCount(0);
-    setApplicantsCount(0);
-    setAllCourses([]);
-    setEnrolledCourses([]);
-    setCreatedCourses([]);
-    
-    // Then fetch fresh data
-    await fetchProfile();
+      setCompletedCourses(0);
+      setAppliedJobs(0);
+      setPostedJobs(0);
+      setHiredCount(0);
+      setApplicantsCount(0);
+      setAllCourses([]);
+      setEnrolledCourses([]);
+      setCreatedCourses([]);
+
+      // Then fetch fresh data
+      await fetchProfile();
     } catch (error) {
       console.error('Error refreshing:', error);
     } finally {
@@ -385,8 +386,8 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <ProfileSkeleton />
       </SafeAreaView>
     );
   }

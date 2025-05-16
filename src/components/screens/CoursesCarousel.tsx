@@ -4,6 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../../context/ThemeContext';
 import { Card } from '../ui/Card';
 import { router } from 'expo-router';
+import { CourseSkeleton } from '../skeletons/CourseSkeleton';
 
 type Course = {
     id: string;
@@ -32,6 +33,19 @@ export const CoursesCarousel: React.FC<CoursesCarouselProps> = ({
     showProgress = false,
 }) => {
     const { colors } = useTheme();
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {[1, 2, 3].map((item) => (
+                        <CourseSkeleton key={item} />
+                    ))}
+                </ScrollView>
+            </View>
+        );
+    }
 
     const renderCourseCard = (course: Course) => (
         <View key={course.id} style={styles.courseCardShadow}>
