@@ -14,20 +14,31 @@ import { Button } from '../../components/ui/Button';
 import { Picker } from '@react-native-picker/picker';
 
 type Opportunity = Database['public']['Tables']['opportunities']['Row'];
+type OpportunityType = 'internship' | 'project' | 'job';
 
-const OPPORTUNITY_TYPES = ['Project', 'Internship', 'Job'];
+const OPPORTUNITY_TYPES: { label: string; value: OpportunityType }[] = [
+  { label: 'Project', value: 'project' },
+  { label: 'Internship', value: 'internship' },
+  { label: 'Job', value: 'job' },
+];
 const SKILLS = ['JavaScript', 'React', 'Node.js', 'Python', 'Java', 'SQL', 'UI/UX', 'Project Management'];
 
 // Custom Picker Component
-const CustomPicker = ({ label, selectedValue, onValueChange, items, style }: {
+const CustomPicker = <T extends string>({
+  label,
+  selectedValue,
+  onValueChange,
+  items,
+  style
+}: {
   label: string;
-  selectedValue: string;
-  onValueChange: (value: string) => void;
-  items: { label: string; value: string }[];
+  selectedValue: T;
+  onValueChange: (value: T) => void;
+  items: { label: string; value: T }[];
   style?: any;
 }) => {
   const { colors } = useTheme();
-  
+
   return (
     <View style={[pickerStyles.container, style]}>
       <Text style={[pickerStyles.label, { color: colors.text }]}>{label}</Text>
@@ -47,6 +58,7 @@ const CustomPicker = ({ label, selectedValue, onValueChange, items, style }: {
   );
 };
 
+
 // Custom Toggle Component
 const CustomToggle = ({ label, value, onValueChange, style }: {
   label: string;
@@ -55,7 +67,7 @@ const CustomToggle = ({ label, value, onValueChange, style }: {
   style?: any;
 }) => {
   const { colors } = useTheme();
-  
+
   return (
     <View style={[toggleStyles.container, style]}>
       <Text style={[toggleStyles.label, { color: colors.text }]}>{label}</Text>
@@ -78,11 +90,11 @@ const CustomDatePicker = ({ label, date, onDateChange, style }: {
 }) => {
   const { colors } = useTheme();
   const [showDatePicker, setShowDatePicker] = useState(false);
-  
+
   return (
     <View style={[datePickerStyles.container, style]}>
       <Text style={[datePickerStyles.label, { color: colors.text }]}>{label}</Text>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => setShowDatePicker(true)}
         style={[datePickerStyles.dateContainer, { borderColor: colors.border }]}
       >
@@ -91,7 +103,7 @@ const CustomDatePicker = ({ label, date, onDateChange, style }: {
         </Text>
         <Feather name="calendar" size={20} color={colors.text} />
       </TouchableOpacity>
-      
+
       {showDatePicker && (
         <DateTimePicker
           value={date}
@@ -184,7 +196,7 @@ export default function EditOpportunityScreen() {
 
               if (error) throw error;
               Alert.alert('Success', 'Opportunity deleted successfully');
-              router.replace('/company-jobs');
+              router.back();
             } catch (error) {
               console.error('Error deleting opportunity:', error);
               Alert.alert('Error', 'Failed to delete opportunity');
@@ -244,11 +256,11 @@ export default function EditOpportunityScreen() {
           style={styles.input}
         />
 
-        <CustomPicker
+        <CustomPicker<OpportunityType>
           label="Job Type"
-          selectedValue={opportunity.type || 'Internship'}
+          selectedValue={opportunity.type || 'internship'}
           onValueChange={(value) => setOpportunity({ ...opportunity, type: value })}
-          items={OPPORTUNITY_TYPES.map(type => ({ label: type, value: type.toLowerCase() }))}
+          items={OPPORTUNITY_TYPES}
           style={styles.input}
         />
 
