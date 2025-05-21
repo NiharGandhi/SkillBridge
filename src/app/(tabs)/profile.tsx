@@ -737,13 +737,25 @@ export default function ProfileScreen() {
 
           {/* Enrolled Courses */}
           {user?.role === "student" &&
-            <CoursesCarousel
-              title="My Courses"
-              courses={enrolledCourses}
-              loading={coursesLoading}
-              onViewAll={() => router.push('/learn')}
-              showProgress={true}
-            />}
+            <>
+              <Button
+                title="Create Training Course"
+                variant="outline"
+                onPress={handleCreateCourse}
+                icon={<Feather name="book" size={16} color={colors.primary} />}
+                iconPosition="left"
+                style={styles.quickActionButton}
+              />
+              <CoursesCarousel
+                title="My Courses"
+                courses={enrolledCourses}
+                loading={coursesLoading}
+                onViewAll={() => router.push('/learn')}
+                showProgress={true}
+              />
+            </>
+          }
+
 
           {/* Created Courses - only show if user has created courses */}
           {createdCourses.length > 0 && (
