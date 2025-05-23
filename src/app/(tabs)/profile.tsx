@@ -61,6 +61,13 @@ type CourseFromQuery = {
   instructor_id?: string;
 };
 
+type Education = {
+  degree: string;
+  university: string;
+  field_of_study: string;
+  graduation_year: string;
+};
+
 export default function ProfileScreen() {
   const { colors } = useTheme();
   const { user, signOut } = useAuth();
@@ -485,6 +492,15 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleEditEducation = () => {
+    router.push({
+      pathname: '/edit-education',
+      params: {
+        education: profile?.education ? JSON.stringify(profile.education) : ''
+      }
+    });
+  };
+
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
@@ -747,22 +763,26 @@ export default function ProfileScreen() {
               <Card variant="default" style={{ ...styles.sectionCard, backgroundColor: colors.card }}>
                 <View style={styles.sectionHeader}>
                   <Text style={[styles.sectionTitle, { color: colors.text }]}>Education</Text>
-                  <TouchableOpacity>
-                    <AntDesign name="pluscircle" size={20} color={colors.primary} />
+                  <TouchableOpacity onPress={handleEditEducation}>
+                    <AntDesign name={profile?.education ? "edit" : "pluscircle"} size={20} color={colors.primary} />
                   </TouchableOpacity>
                 </View>
                 {profile?.education ? (
                   <View style={styles.educationContainer}>
-                    {/* Render education items here */}
-                    <Text style={[styles.emptyText, { color: colors.subtext }]}>
-                      Education details would be displayed here.
-                    </Text>
+                    {Object.entries(JSON.parse(JSON.stringify(profile.education))).filter(([key, value]) => value).map(([key, value]) => (
+                      <View key={key} style={styles.educationItem}>
+                        <Text style={[styles.educationLabel, { color: colors.subtext }]}>
+                          {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}:
+                        </Text>
+                        <Text style={[styles.educationValue, { color: colors.text }]}>{value}</Text>
+                      </View>
+                    ))}
                   </View>
                 ) : (
                   <View style={styles.emptySection}>
                     <Ionicons name="school" size={32} color={colors.subtext} style={{ opacity: 0.5 }} />
                     <Text style={[styles.emptyText, { color: colors.subtext }]}>
-                      Add your educational background
+                      Add your education details to enhance your profile
                     </Text>
                   </View>
                 )}
@@ -1093,9 +1113,7 @@ const styles = StyleSheet.create({
   companyActionButton: {
     marginBottom: 12,
   },
-  educationContainer: {
-    marginTop: 8,
-  },
+
   quickActions: {
     marginTop: 8,
   },
@@ -1206,5 +1224,28 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  educationContainer: {
+    marginTop: 8,
+  },
+  educationItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e1e1e1',
+  },
+  educationLabel: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  educationValue: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 14,
+    flexShrink: 1,
+    textAlign: 'right',
+    marginLeft: 16,
   },
 });
