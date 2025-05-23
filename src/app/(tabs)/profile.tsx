@@ -19,6 +19,8 @@ import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { CoursesCarousel } from '../../components/screens/CoursesCarousel';
 import { ProfileSkeleton } from '../../components/skeletons/ProfileSkeleton';
+import * as ImagePicker from 'expo-image-picker';
+import { decode } from 'base64-arraybuffer';
 
 type Profile = Database['public']['Tables']['profiles']['Row'] & {
   company?: {
@@ -354,6 +356,67 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleAvatarUpload = async () => {
+    try {
+      // Request permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'We need access to your photos to upload a profile picture');
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+        base64: true,
+      });
+
+      if (result.canceled) return;
+
+      const image = result.assets[0];
+      if (!image.base64) return;
+
+      const fileExt = image.uri.split('.').pop()?.toLowerCase();
+      const fileName = `${user?.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
+
+      // Upload image to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, decode(image.base64), {
+          contentType: image.mimeType || 'image/jpeg',
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user?.id);
+
+      if (updateError) throw updateError;
+
+      // Refresh profile data
+      await fetchProfile();
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      Alert.alert(
+        'Upload failed',
+        error instanceof Error ? error.message : 'Could not upload image'
+      );
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -421,11 +484,17 @@ export default function ProfileScreen() {
           {/* Profile Card */}
           <Card variant="elevated" style={{ ...styles.profileCard, backgroundColor: colors.card }}>
             <View style={styles.profileHeader}>
-              <Avatar
-                uri={profile?.avatar_url}
-                initials={`${profile?.first_name?.charAt(0) || ''}${profile?.last_name?.charAt(0) || ''}`}
-                size={90}
-              />
+              {/* Replace the existing Avatar component with this */}
+              <TouchableOpacity onPress={handleAvatarUpload}>
+                <Avatar
+                  uri={profile?.avatar_url}
+                  initials={`${profile?.first_name?.charAt(0) || ''}${profile?.last_name?.charAt(0) || ''}`}
+                  size={90}
+                />
+                <View style={styles.uploadOverlay}>
+                  <MaterialIcons name="camera-alt" size={24} color="white" />
+                </View>
+              </TouchableOpacity>
               <View style={styles.profileInfo}>
                 <Text style={[styles.name, { color: colors.text }]}>
                   {profile?.first_name} {profile?.last_name}
@@ -722,14 +791,6 @@ export default function ProfileScreen() {
                     iconPosition="left"
                     style={styles.quickActionButton}
                   />
-                  <Button
-                    title="Create Training Course"
-                    variant="outline"
-                    onPress={handleCreateCourse}
-                    icon={<Feather name="book" size={16} color={colors.primary} />}
-                    iconPosition="left"
-                    style={styles.quickActionButton}
-                  />
                 </View>
               </Card>
             </>
@@ -753,19 +814,18 @@ export default function ProfileScreen() {
                 onViewAll={() => router.push('/learn')}
                 showProgress={true}
               />
+              {/* Created Courses - only show if user has created courses */}
+              {createdCourses.length > 0 && (
+                <CoursesCarousel
+                  title="Created Courses"
+                  courses={createdCourses}
+                  loading={coursesLoading}
+                  onViewAll={() => router.push('/created-courses')}
+                />
+              )}
             </>
+
           }
-
-
-          {/* Created Courses - only show if user has created courses */}
-          {createdCourses.length > 0 && (
-            <CoursesCarousel
-              title="Created Courses"
-              courses={createdCourses}
-              loading={coursesLoading}
-              onViewAll={() => router.push('/created-courses')}
-            />
-          )}
         </ScrollView>
       </ScrollView>
     </SafeAreaView>
@@ -1070,5 +1130,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 8,
     textAlign: 'right',
+  },
+  uploadOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
