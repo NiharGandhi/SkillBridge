@@ -417,6 +417,66 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleCompanyLogoUpload = async () => {
+    if (!profile?.company?.id) return;
+
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'We need access to your photos to upload a logo');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+        base64: true,
+      });
+
+      if (result.canceled) return;
+      const image = result.assets[0];
+      if (!image.base64) return;
+
+      const fileExt = image.uri.split('.').pop()?.toLowerCase();
+      const fileName = `${profile.company.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${profile.company.id}/${fileName}`;
+
+      // Upload to company-logos bucket
+      const { error: uploadError } = await supabase.storage
+        .from('company-logos')
+        .upload(filePath, decode(image.base64), {
+          contentType: image.mimeType || 'image/jpeg',
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-logos')
+        .getPublicUrl(filePath);
+
+      // Update company record
+      const { error: updateError } = await supabase
+        .from('companies')
+        .update({ logo_url: publicUrl })
+        .eq('id', profile.company.id);
+
+      if (updateError) throw updateError;
+
+      // Refresh profile data
+      await fetchProfile();
+    } catch (error) {
+      console.error('Logo upload error:', error);
+      Alert.alert(
+        'Upload failed',
+        error instanceof Error ? error.message : 'Could not upload logo'
+      );
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -724,11 +784,16 @@ export default function ProfileScreen() {
                 {profile?.company ? (
                   <View style={styles.companyContainer}>
                     <View style={styles.companyHeader}>
-                      <Avatar
-                        uri={profile.company.logo_url || null}
-                        initials={profile.company.name.charAt(0)}
-                        size={70}
-                      />
+                      <TouchableOpacity onPress={handleCompanyLogoUpload}>
+                        <Avatar
+                          uri={profile.company.logo_url || null}
+                          initials={profile.company.name.charAt(0)}
+                          size={70}
+                        />
+                        <View style={styles.uploadOverlay}>
+                          <MaterialIcons name="camera-alt" size={20} color="white" />
+                        </View>
+                      </TouchableOpacity>
                       <View style={styles.companyInfo}>
                         <Text style={[styles.companyName, { color: colors.text }]}>
                           {profile.company.name}
