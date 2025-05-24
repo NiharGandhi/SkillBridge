@@ -207,17 +207,6 @@ export default function UserProfileScreen() {
                         </Text>
                     </Card>
                 )}
-
-                {/* Experience Section */}
-                {profile.experience && (
-                    <Card variant="default" style={{ ...styles.experienceCard, backgroundColor: colors.card }}>
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Experience</Text>
-                        {/* Render experience items here */}
-                        <Text style={[styles.experienceText, { color: colors.text }]}>
-                            {JSON.stringify(profile.experience, null, 2)}
-                        </Text>
-                    </Card>
-                )}
             </ScrollView>
         </SafeAreaView>
     );

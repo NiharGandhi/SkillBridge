@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
@@ -11,14 +11,14 @@ import { CourseCard } from '../../components/screens/CourseCard';
 import { Avatar } from '../../components/ui/Avatar';
 import { OpportunityCard } from '../../components/screens/OpportunityCard';
 
-
 type SearchResultItem =
   | Database['public']['Tables']['courses']['Row']
   | Database['public']['Tables']['opportunities']['Row']
-  | Database['public']['Tables']['profiles']['Row'];
+  | Database['public']['Tables']['profiles']['Row']
+  | Database['public']['Tables']['companies']['Row'];
 
 type SearchResult = {
-  type: 'course' | 'opportunity' | 'profile';
+  type: 'course' | 'opportunity' | 'profile' | 'company';
   data: any;
 };
 
@@ -26,8 +26,70 @@ export default function SearchScreen() {
   const { colors } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'all' | 'courses' | 'opportunities' | 'profiles'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'courses' | 'opportunities' | 'profiles' | 'companies'>('all');
+
+  useEffect(() => {
+    const fetchSuggestions = async (query: string) => {
+      if (!query.trim()) {
+        setSuggestions([]);
+        return;
+      }
+
+      try {
+        const [
+          { data: courses },
+          { data: opportunities },
+          { data: profiles },
+          { data: companies }
+        ] = await Promise.all([
+          supabase
+            .from('courses')
+            .select('title')
+            .ilike('title', `%${query}%`)
+            .limit(3),
+          supabase
+            .from('opportunities')
+            .select('title')
+            .ilike('title', `%${query}%`)
+            .limit(3),
+          supabase
+            .from('profiles')
+            .select('first_name,last_name')
+            .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%`)
+            .limit(3),
+          supabase
+            .from('companies')
+            .select('name')
+            .ilike('name', `%${query}%`)
+            .limit(3)
+        ]);
+
+        const courseTitles = courses?.map(c => c.title) || [];
+        const opportunityTitles = opportunities?.map(o => o.title) || [];
+        const profileNames = profiles?.map(p => `${p.first_name} ${p.last_name}`) || [];
+        const companyNames = companies?.map(c => c.name) || [];
+
+        setSuggestions([
+          ...courseTitles,
+          ...opportunityTitles,
+          ...profileNames,
+          ...companyNames
+        ].slice(0, 5)); // Show max 5 suggestions
+      } catch (error) {
+        console.error('Suggestions error:', error);
+      }
+    };
+
+    const debounceTimer = setTimeout(() => {
+      if (searchQuery.trim()) {
+        fetchSuggestions(searchQuery);
+      }
+    }, 200);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
 
   const searchAll = async (query: string) => {
     if (!query.trim()) {
@@ -42,7 +104,7 @@ export default function SearchScreen() {
         .from('courses')
         .select('*')
         .textSearch('title_description', `${query}`, {
-          type: 'plain',
+          type: 'websearch',
           config: 'english'
         })
         .limit(5);
@@ -52,7 +114,17 @@ export default function SearchScreen() {
         .from('opportunities')
         .select('*, company:companies(name, logo_url)')
         .textSearch('title_description', `${query}`, {
-          type: 'plain',
+          type: 'websearch',
+          config: 'english'
+        })
+        .limit(5);
+
+      // Search companies
+      const { data: companies } = await supabase
+        .from('companies')
+        .select('*')
+        .textSearch('name_description', query, {
+          type: 'websearch',
           config: 'english'
         })
         .limit(5);
@@ -62,15 +134,15 @@ export default function SearchScreen() {
         .from('profiles')
         .select('*')
         .textSearch('name_skills', `${query}`, {
-          type: 'plain',
+          type: 'websearch',
           config: 'english'
         })
-        .eq('role', 'student')
         .limit(5);
 
       const combinedResults: SearchResult[] = [
         ...(courses?.map(c => ({ type: 'course' as const, data: c })) || []),
         ...(opportunities?.map(o => ({ type: 'opportunity' as const, data: o })) || []),
+        ...(companies?.map(c => ({ type: 'company' as const, data: c })) || []),
         ...(profiles?.map(p => ({ type: 'profile' as const, data: p })) || [])
       ];
 
@@ -82,7 +154,7 @@ export default function SearchScreen() {
     }
   };
 
-  const searchByType = async (query: string, type: 'courses' | 'opportunities' | 'profiles') => {
+  const searchByType = async (query: string, type: 'courses' | 'opportunities' | 'profiles' | 'companies') => {
     if (!query.trim()) {
       setResults([]);
       return;
@@ -125,9 +197,19 @@ export default function SearchScreen() {
               type: 'plain',
               config: 'english'
             })
-            .eq('role', 'student')
             .limit(10);
           results = profiles?.map(p => ({ type: 'profile' as const, data: p })) || [];
+          break;
+        case 'companies':
+          const { data: companies } = await supabase
+            .from('companies')
+            .select('*')
+            .textSearch('name_description', query, {
+              type: 'plain',
+              config: 'english'
+            })
+            .limit(10);
+          results = companies?.map(c => ({ type: 'company' as const, data: c })) || [];
           break;
       }
 
@@ -192,7 +274,7 @@ export default function SearchScreen() {
           >
             <Avatar
               uri={item.data.avatar_url}
-              initials={`${item.data.first_name?.charAt(0)}${item.data.last_name?.charAt(0)}`}
+              initials={`${item.data.first_name?.charAt(0) || ''}${item.data.last_name?.charAt(0) || ''}`}
               size={56}
             />
             <View style={styles.profileInfo}>
@@ -217,6 +299,32 @@ export default function SearchScreen() {
                     </View>
                   )}
                 </View>
+              )}
+            </View>
+          </TouchableOpacity>
+        );
+      case 'company':
+        return (
+          <TouchableOpacity
+            style={[styles.profileCard, { backgroundColor: colors.card }]}
+            onPress={() => router.push(`/company/${item.data.id}`)}
+          >
+            <Avatar
+              uri={item.data.logo_url}
+              initials={item.data.name?.split(' ').map((n: string) => n[0]).join('')}
+              size={56}
+            />
+            <View style={styles.profileInfo}>
+              <Text style={[styles.profileName, { color: colors.text }]}>
+                {item.data.name}
+              </Text>
+              <Text style={[styles.profileTitle, { color: colors.subtext }]}>
+                {item.data.industry || 'Company'}
+              </Text>
+              {item.data.location && (
+                <Text style={[styles.profileTitle, { color: colors.subtext }]}>
+                  {item.data.location}
+                </Text>
               )}
             </View>
           </TouchableOpacity>
@@ -249,24 +357,48 @@ export default function SearchScreen() {
               returnKeyType="search"
             />
           </View>
+          {/* Suggestions dropdown */}
+          {suggestions.length > 0 && (
+            <View style={[styles.suggestionsContainer, { backgroundColor: colors.card }]}>
+              {suggestions.map((suggestion, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.suggestionItem}
+                  onPress={() => {
+                    setSearchQuery(suggestion);
+                    setSuggestions([]);
+                  }}
+                >
+                  <Text style={[styles.suggestionText, { color: colors.text }]}>{suggestion}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
 
         {/* Tabs */}
-        <View style={[styles.tabsContainer, { borderBottomColor: colors.border }]}>
-          {(['all', 'courses', 'opportunities', 'profiles'] as const).map((tab) => (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[styles.tabsContainer, { paddingHorizontal: 16 }]}
+        >
+          {(['all', 'courses', 'opportunities', 'profiles', 'companies'] as const).map((tab) => (
             <TouchableOpacity
               key={tab}
               style={[
                 styles.tab,
-                activeTab === tab && { borderBottomColor: colors.primary }
+                {
+                  borderColor: colors.border,
+                  marginRight: 12, // Add spacing between tabs
+                  backgroundColor: activeTab === tab ? colors.primary + '20' : colors.card,
+                }
               ]}
               onPress={() => setActiveTab(tab)}
             >
               <Text style={[
                 styles.tabText,
-                { color: colors.text },
+                { color: activeTab === tab ? colors.primary : colors.text },
                 activeTab === tab && {
-                  color: colors.primary,
                   fontFamily: 'Inter-SemiBold'
                 }
               ]}>
@@ -276,7 +408,7 @@ export default function SearchScreen() {
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
       </View>
 
       {/* Content */}
@@ -349,6 +481,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 48,
   },
+  searchInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 48,
+  },
+  suggestionsContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    borderRadius: 12,
+    paddingVertical: 8,
+    zIndex: 100,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  suggestionItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  suggestionText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+  },
   searchIcon: {
     marginRight: 8,
   },
@@ -360,15 +521,13 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    marginHorizontal: 8,
+    paddingVertical: 8,
   },
   tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   tabText: {
     fontFamily: 'Inter-Medium',

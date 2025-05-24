@@ -248,7 +248,7 @@ export default function ProfileScreen() {
 
   const handleManageCompany = () => {
     if (profile?.company?.id) {
-      router.push(`/company/${profile.company.id}`);
+      router.push(`/company/edit/${profile.company.id}`);
     }
   };
 
@@ -774,7 +774,7 @@ export default function ProfileScreen() {
                         <Text style={[styles.educationLabel, { color: colors.subtext }]}>
                           {key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}:
                         </Text>
-                        <Text style={[styles.educationValue, { color: colors.text }]}>{value}</Text>
+                        <Text style={[styles.educationValue, { color: colors.text }]}>{String(value)}</Text>
                       </View>
                     ))}
                   </View>

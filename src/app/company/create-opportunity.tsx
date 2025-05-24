@@ -137,6 +137,7 @@ export default function CreateOpportunityScreen() {
               >
                 <Text style={[
                   styles.radioText,
+                  { color: colors.text },
                   opportunity.type === type && { color: 'white' },
                 ]}>
                   {type.charAt(0).toUpperCase() + type.slice(1)}
