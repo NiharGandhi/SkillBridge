@@ -17,10 +17,11 @@ type SearchResultItem =
   | Database['public']['Tables']['profiles']['Row']
   | Database['public']['Tables']['companies']['Row'];
 
-type SearchResult = {
-  type: 'course' | 'opportunity' | 'profile' | 'company';
-  data: any;
-};
+type SearchResult =
+  | { type: 'course'; data: Database['public']['Tables']['courses']['Row'] }
+  | { type: 'opportunity'; data: Database['public']['Tables']['opportunities']['Row'] & { company: { name: string; logo_url: string | null } } }
+  | { type: 'profile'; data: Database['public']['Tables']['profiles']['Row'] }
+  | { type: 'company'; data: Database['public']['Tables']['companies']['Row'] };
 
 type ActiveTab = 'all' | 'courses' | 'opportunities' | 'profiles' | 'companies';
 
@@ -46,7 +47,7 @@ export default function SearchScreen() {
       // Enhanced profile search that handles full names better
       const profileSearchTerms = query.trim().split(' ');
       let profileQuery = '';
-      
+
       if (profileSearchTerms.length === 1) {
         // Single term - search in both first and last name
         profileQuery = `first_name.ilike.%${query}%,last_name.ilike.%${query}%`;
@@ -70,10 +71,10 @@ export default function SearchScreen() {
       ]);
 
       const combinedResults: SearchResult[] = [
-        ...(courses?.map(c => ({ type: 'course', data: c })) || []),
-        ...(opportunities?.map(o => ({ type: 'opportunity', data: o })) || []),
-        ...(companies?.map(c => ({ type: 'company', data: c })) || []),
-        ...(profiles?.map(p => ({ type: 'profile', data: p })) || [])
+        ...(courses?.map(c => ({ type: 'course' as const, data: c })) || []),
+        ...(opportunities?.map(o => ({ type: 'opportunity' as const, data: o })) || []),
+        ...(companies?.map(c => ({ type: 'company' as const, data: c })) || []),
+        ...(profiles?.map(p => ({ type: 'profile' as const, data: p })) || [])
       ];
 
       setResults(combinedResults);
@@ -118,7 +119,7 @@ export default function SearchScreen() {
           // Enhanced profile search for better name matching
           const profileSearchTerms = query.trim().split(' ');
           let profileQuery = '';
-          
+
           if (profileSearchTerms.length === 1) {
             // Single term - search in both first and last name
             profileQuery = `first_name.ilike.%${query}%,last_name.ilike.%${query}%`;
@@ -134,7 +135,7 @@ export default function SearchScreen() {
             .select('*')
             .or(profileQuery)
             .limit(10);
-          
+
           results = profiles?.map(p => ({ type: 'profile' as const, data: p })) || [];
           break;
 
@@ -251,15 +252,15 @@ export default function SearchScreen() {
     }
   };
 
-  const handleSuggestionPress = (suggestion: string) => {    
+  const handleSuggestionPress = (suggestion: string) => {
     // Set flag to prevent debounced search interference
     setIsSearchingFromSuggestion(true);
-    
+
     // Update search query
     setSearchQuery(suggestion);
     setSuggestions([]);
     setShowSuggestions(false);
-    
+
     // Immediately perform search with the selected suggestion
     setTimeout(() => {
       performSearch(suggestion, activeTab);
@@ -352,19 +353,19 @@ export default function SearchScreen() {
                 {item.data.first_name} {item.data.last_name}
               </Text>
               <Text style={[styles.profileTitle, { color: colors.subtext }]}>
-                {item.data.title || 'SkillBridge User'}
+                {item.data.bio || 'SkillBridge User'}
               </Text>
-              {item.data.skills?.length > 0 && (
+              {item.data.skills && item.data.skills?.length > 0 && (
                 <View style={styles.skillsContainer}>
-                  {item.data.skills.slice(0, 3).map((skill: string, index: number) => (
+                  {(item.data.skills as string[]).slice(0, 3).map((skill: string, index: number) => (
                     <View key={index} style={[styles.skillTag, { backgroundColor: colors.primary + '20' }]}>
                       <Text style={[styles.skillText, { color: colors.primary }]}>{skill}</Text>
                     </View>
                   ))}
-                  {item.data.skills.length > 3 && (
+                  {item.data.skills && item.data.skills.length > 3 && (
                     <View style={[styles.skillTag, { backgroundColor: colors.border }]}>
                       <Text style={[styles.skillText, { color: colors.subtext }]}>
-                        +{item.data.skills.length - 3}
+                        +{(item.data.skills as string[]).length - 3}
                       </Text>
                     </View>
                   )}
@@ -413,7 +414,7 @@ export default function SearchScreen() {
       case 'courses': return 'Courses';
       case 'opportunities': return 'Jobs';
       case 'companies': return 'Companies';
-      default: return tab.charAt(0).toUpperCase() + tab.slice(1);
+      default: return;
     }
   };
 
@@ -521,7 +522,7 @@ export default function SearchScreen() {
           <FlatList
             data={results.filter(item => {
               if (activeTab === 'all') return true;
-              return item.type === activeTab;
+              return item.type === activeTab.slice(0, -1)
             })}
             renderItem={renderItem}
             keyExtractor={(item, index) => `${item.type}-${item.data.id}-${index}`}
