@@ -82,7 +82,7 @@ export const GreetingHeader = () => {
             <TouchableOpacity onPress={() => router.push('/profile')}>
                 <Avatar
                     size={40}
-                    uri={null} // Will update this next
+                    uri={profile?.avatar_url}
                     initials={getInitials()}
                 />
             </TouchableOpacity>
