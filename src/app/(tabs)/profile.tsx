@@ -671,9 +671,6 @@ export default function ProfileScreen() {
               <Card variant="default" style={{ ...styles.sectionCard, backgroundColor: colors.card }}>
                 <View style={styles.sectionHeader}>
                   <Text style={[styles.sectionTitle, { color: colors.text }]}>Skills & Expertise</Text>
-                  <TouchableOpacity>
-                    <AntDesign name="pluscircle" size={20} color={colors.primary} />
-                  </TouchableOpacity>
                 </View>
                 <View style={styles.skillsContainer}>
                   {profile?.skills && profile.skills.length > 0 ? (

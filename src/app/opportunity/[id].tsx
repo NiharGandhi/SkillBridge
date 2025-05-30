@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
@@ -10,6 +10,9 @@ import { Card } from '../../components/ui/Card';
 import { Database } from '../../types/supabase';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Feather from '@expo/vector-icons/Feather';
+import { format } from 'date-fns';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Opportunity = Database['public']['Tables']['opportunities']['Row'] & {
   company: {
@@ -21,7 +24,6 @@ type Opportunity = Database['public']['Tables']['opportunities']['Row'] & {
 };
 
 export default function OpportunityDetails() {
-  // Fix: Use a cast instead of TypeScript generics to avoid JSX confusion
   const params = useLocalSearchParams();
   const id = params.id as string;
   const opportunityId = Array.isArray(id) ? id[0] : id;
@@ -87,7 +89,6 @@ export default function OpportunityDetails() {
 
     setApplicationLoading(true);
     try {
-      // First check if user has a resume uploaded
       const { data: profile } = await supabase
         .from('profiles')
         .select('resume_url')
@@ -130,7 +131,10 @@ export default function OpportunityDetails() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Loading...</Text>
+        <View style={styles.loadingContainer}>
+          <Feather name="loader" size={24} color={colors.primary} style={styles.loadingIcon} />
+          <Text style={[styles.loadingText, { color: colors.text }]}>Loading opportunity details</Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -138,7 +142,16 @@ export default function OpportunityDetails() {
   if (!opportunity) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Opportunity not found</Text>
+        <View style={styles.notFoundContainer}>
+          <Feather name="frown" size={32} color={colors.text} style={styles.notFoundIcon} />
+          <Text style={[styles.notFoundText, { color: colors.text }]}>Opportunity not found</Text>
+          <TouchableOpacity 
+            style={[styles.backButton, { backgroundColor: colors.primary }]}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.backButtonText, { color: '#fff' }]}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     );
   }
@@ -146,102 +159,181 @@ export default function OpportunityDetails() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header with back button */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <AntDesign name="arrowleft" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.text }]}>{opportunity.title}</Text>
-          <View style={{ width: 24 }} /> {/* Spacer for alignment */}
+        {/* LinkedIn-style Header */}
+        <View
+          style={[styles.headerGradient, { backgroundColor: colors.primary }]}
+        >
+          <View style={styles.header}>
+            <TouchableOpacity 
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <AntDesign name="arrowleft" size={24} color="#fff" />
+            </TouchableOpacity>
+            <View style={styles.headerSpacer} />
+          </View>
         </View>
 
-        {/* Company Info - Visible to all users */}
-        <Card variant="outlined" style={styles.companyCard}>
-          <View style={styles.companyHeader}>
-            {opportunity.company?.logo_url ? (
-              <Avatar size={48} uri={opportunity.company.logo_url} />
-            ) : (
-              <Avatar size={48} initials={opportunity.company?.name?.charAt(0) || 'C'} />
-            )}
-            <View style={styles.companyInfo}>
-              <Text style={[styles.companyName, { color: colors.text }]}>
-                {opportunity.company?.name || 'Unknown Company'}
-              </Text>
-              {opportunity.company?.website && (
-                <Text style={[styles.website, { color: colors.primary }]}>
-                  {opportunity.company.website}
+        {/* Job Header Card */}
+        <View style={[ styles.jobHeaderCard, { backgroundColor: colors.background } ]}>
+          <View style={styles.jobHeaderContent}>
+            <View style={styles.companyHeader}>
+              <View style={styles.logoContainer}>
+                {opportunity.company?.logo_url ? (
+                  <Image 
+                    source={{ uri: opportunity.company.logo_url }} 
+                    style={styles.companyLogo}
+                  />
+                ) : (
+                  <View style={[styles.logoPlaceholder, { backgroundColor: colors.card }]}>
+                    <Text style={[styles.logoInitials, { color: colors.text }]}>
+                      {opportunity.company?.name?.charAt(0) || 'C'}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              
+              <View style={styles.jobInfo}>
+                <Text style={[styles.jobTitle, { color: colors.text }]}>{opportunity.title}</Text>
+                <Text style={[styles.companyName, { color: colors.subtext }]}>
+                  {opportunity.company?.name || 'Unknown Company'}
                 </Text>
+                <Text style={styles.jobLocation}>
+                  {opportunity.remote ? 'Remote' : opportunity.location || 'Location not specified'}
+                </Text>
+              </View>
+            </View>
+            
+            <View style={styles.metaContainer}>
+              <View style={styles.metaItem}>
+                <MaterialIcons name="work" size={18} color={colors.subtext} />
+                <Text style={[styles.metaText, { color: colors.text }]}>
+                  {opportunity.type.charAt(0).toUpperCase() + opportunity.type.slice(1)}
+                </Text>
+              </View>
+              
+              {opportunity.application_deadline && (
+                <View style={styles.metaItem}>
+                  <MaterialIcons name="event" size={18} color={colors.subtext} />
+                  <Text style={[styles.metaText, { color: colors.text }]}>
+                    Apply by: {format(new Date(opportunity.application_deadline), 'MMM dd, yyyy')}
+                  </Text>
+                </View>
               )}
             </View>
           </View>
-          {opportunity.company?.description && (
-            <Text style={[styles.description, { color: colors.subtext }]}>
-              {opportunity.company.description}
-            </Text>
-          )}
-        </Card>
+        </View>
 
-        {/* Opportunity Details */}
-        <Card variant="outlined" style={styles.detailsCard}>
-          <View style={styles.detailRow}>
-            <MaterialIcons name="work" size={20} color={colors.primary} />
-            <Text style={[styles.detailText, { color: colors.text }]}>
-              {opportunity.type.charAt(0).toUpperCase() + opportunity.type.slice(1)}
-            </Text>
-          </View>
-
-          <View style={styles.detailRow}>
-            <MaterialIcons name="location-on" size={20} color={colors.primary} />
-            <Text style={[styles.detailText, { color: colors.text }]}>
-              {opportunity.remote ? 'Remote' : opportunity.location || 'Location not specified'}
-            </Text>
-          </View>
-
-          {opportunity.application_deadline && (
-            <View style={styles.detailRow}>
-              <MaterialIcons name="event" size={20} color={colors.primary} />
-              <Text style={[styles.detailText, { color: colors.text }]}>
-                Apply by: {new Date(opportunity.application_deadline).toLocaleDateString()}
-              </Text>
-            </View>
-          )}
-        </Card>
-
-        {/* Description */}
-        <Card variant="outlined" style={styles.descriptionCard}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Description</Text>
+        {/* About the Job */}
+        <Card style={{ ...styles.sectionCard, backgroundColor: colors.background }}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>About the job</Text>
           <Text style={[styles.descriptionText, { color: colors.text }]}>
             {opportunity.description}
           </Text>
         </Card>
 
-        {/* Skills Required */}
+        {/* Job Details */}
+        <Card style={{ ...styles.sectionCard, backgroundColor: colors.background }}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Job details</Text>
+          
+          <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { color: colors.subtext }]}>Job type</Text>
+            <Text style={[styles.detailValue, { color: colors.text }]}>
+              {opportunity.type.charAt(0).toUpperCase() + opportunity.type.slice(1)}
+            </Text>
+          </View>
+          
+          <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { color: colors.subtext }]}>Location</Text>
+            <Text style={[styles.detailValue, { color: colors.text }]}>
+              {opportunity.remote ? 'Remote' : opportunity.location || 'Not specified'}
+            </Text>
+          </View>
+          
+          {opportunity.application_deadline && (
+            <View style={styles.detailRow}>
+              <Text style={[styles.detailLabel, { color: colors.subtext }]}>Application deadline</Text>
+              <Text style={[styles.detailValue, { color: colors.text }]}>
+                {format(new Date(opportunity.application_deadline), 'MMM dd, yyyy')}
+              </Text>
+            </View>
+          )}
+        </Card>
+
+        {/* Skills */}
         {opportunity.skills_required?.length > 0 && (
-          <Card variant="outlined" style={styles.skillsCard}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Skills Required</Text>
+          <Card style={{ ...styles.sectionCard, backgroundColor: colors.background }}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Skills required</Text>
             <View style={styles.skillsContainer}>
               {opportunity.skills_required.map((skill, index) => (
-                <View key={index} style={[styles.skillTag, { backgroundColor: colors.card }]}>
-                  <Text style={[styles.skillText, { color: colors.text }]}>{skill}</Text>
+                <View 
+                  key={index} 
+                  style={[styles.skillTag, { 
+                    backgroundColor: `${colors.primary}15`, 
+                    borderColor: colors.primary 
+                  }]}
+                >
+                  <Text style={[styles.skillText, { color: colors.primary }]}>{skill}</Text>
                 </View>
               ))}
             </View>
           </Card>
         )}
+
+        {/* About the Company */}
+        {opportunity.company?.description && (
+          <Card style={{ ...styles.sectionCard, backgroundColor: colors.background }}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>About the company</Text>
+            <View style={styles.companyAboutHeader}>
+              {opportunity.company?.logo_url ? (
+                <Image 
+                  source={{ uri: opportunity.company.logo_url }} 
+                  style={styles.companyAboutLogo}
+                />
+              ) : (
+                <View style={[styles.logoPlaceholder, { backgroundColor: colors.card }]}>
+                  <Text style={[styles.logoInitials, { color: colors.text }]}>
+                    {opportunity.company?.name?.charAt(0) || 'C'}
+                  </Text>
+                </View>
+              )}
+              <Text style={[styles.companyAboutName, { color: colors.text }]}>
+                {opportunity.company?.name || 'Unknown Company'}
+              </Text>
+            </View>
+            <Text style={[styles.descriptionText, { color: colors.text }]}>
+              {opportunity.company.description}
+            </Text>
+            {opportunity.company?.website && (
+              <TouchableOpacity style={styles.websiteLink}>
+                <Text style={[styles.websiteText, { color: colors.primary }]}>
+                  {opportunity.company.website.replace(/^https?:\/\//, '')}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </Card>
+        )}
       </ScrollView>
 
-      {/* Apply Button - Only for students */}
+      {/* Apply Button */}
       {user?.role === 'student' && (
-        <View style={[styles.footer, { backgroundColor: colors.background }]}>
+        <View style={[styles.footer, { 
+          backgroundColor: colors.background,
+          borderTopColor: colors.border 
+        }]}>
           {applied ? (
-            <Card variant="outlined" style={styles.appliedCard}>
-              <Text style={[styles.appliedText, { color: colors.primary }]}>
+            <View style={[styles.appliedContainer, { backgroundColor: '#f0fdf4' }]}>
+              <Feather name="check-circle" size={20} color="#16a34a" />
+              <Text style={[styles.appliedText, { color: '#16a34a' }]}>
                 Application Submitted
               </Text>
-            </Card>
+            </View>
           ) : (
             <TouchableOpacity
-              style={[styles.applyButton, { backgroundColor: colors.primary }]}
+              style={[styles.applyButton, { 
+                backgroundColor: '#0a66c2',
+                opacity: applicationLoading ? 0.8 : 1
+              }]}
               onPress={handleApply}
               disabled={applicationLoading}
             >
@@ -261,78 +353,145 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 80,
+    paddingBottom: 100,
+  },
+  headerGradient: {
+    paddingTop: 16,
+    paddingBottom: 32,
+    paddingHorizontal: 16,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    marginBottom: 24,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginTop: 8,
   },
-  title: {
+  headerTitle: {
     fontFamily: 'Inter-SemiBold',
-    fontSize: 22,
+    fontSize: 18,
+    color: '#fff',
     textAlign: 'center',
     flex: 1,
+    marginHorizontal: 12,
   },
-  companyCard: {
-    padding: 16,
-    marginBottom: 16,
+  headerSpacer: {
+    width: 40,
+  },
+  jobHeaderCard: {
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginTop: -56,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  jobHeaderContent: {
+    marginTop: 8,
   },
   companyHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
+    alignItems: 'flex-start',
+    marginBottom: 20,
   },
-  companyInfo: {
-    marginLeft: 12,
+  logoContainer: {
+    marginRight: 16,
+  },
+  companyLogo: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    resizeMode: 'contain',
+  },
+  logoPlaceholder: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoInitials: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 20,
+  },
+  jobInfo: {
+    flex: 1,
+  },
+  jobTitle: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 20,
+    color: '#1c1c1e',
+    marginBottom: 4,
   },
   companyName: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
+    fontFamily: 'Inter-Medium',
+    fontSize: 16,
+    color: '#3a3a3c',
+    marginBottom: 4,
   },
-  website: {
+  jobLocation: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    marginTop: 4,
+    color: '#6b6b6e',
   },
-  description: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    lineHeight: 20,
+  metaContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
   },
-  detailsCard: {
-    padding: 16,
-    marginBottom: 16,
-  },
-  detailRow: {
+  metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 24,
     marginBottom: 12,
   },
-  detailText: {
+  metaText: {
     fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    marginLeft: 12,
+    fontSize: 14,
+    marginLeft: 8,
   },
-  descriptionCard: {
-    padding: 16,
+  sectionCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginHorizontal: 16,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   sectionTitle: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 18,
-    marginBottom: 12,
+    marginBottom: 16,
+    color: '#1c1c1e',
   },
   descriptionText: {
     fontFamily: 'Inter-Regular',
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 22,
+    color: '#3a3a3c',
   },
-  skillsCard: {
-    padding: 16,
-    marginBottom: 16,
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  detailLabel: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 14,
+    color: '#6b6b6e',
+  },
+  detailValue: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    color: '#1c1c1e',
   },
   skillsContainer: {
     flexDirection: 'row',
@@ -340,13 +499,36 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   skillTag: {
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginRight: 10,
+    marginBottom: 10,
+    borderWidth: 1,
   },
   skillText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+  },
+  companyAboutHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  companyAboutLogo: {
+    width: 40,
+    height: 40,
+    borderRadius: 6,
+    marginRight: 12,
+  },
+  companyAboutName: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+  },
+  websiteLink: {
+    marginTop: 12,
+  },
+  websiteText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
   },
@@ -357,11 +539,11 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#e0e0e0',
   },
   applyButton: {
-    borderRadius: 8,
-    paddingVertical: 14,
+    borderRadius: 24,
+    paddingVertical: 16,
     alignItems: 'center',
   },
   applyButtonText: {
@@ -369,12 +551,55 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
   },
-  appliedCard: {
-    padding: 16,
+  appliedContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 8,
+    justifyContent: 'center',
+    borderRadius: 24,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
   },
   appliedText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingIcon: {
+    marginBottom: 16,
+  },
+  loadingText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  notFoundContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  notFoundIcon: {
+    marginBottom: 16,
+  },
+  notFoundText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  backButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    alignItems: 'center',
+  },
+  backButtonText: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
   },
