@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -30,10 +31,67 @@ export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<ActiveTab>('all');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showRecentSearches, setShowRecentSearches] = useState(false);
   const [isSearchingFromSuggestion, setIsSearchingFromSuggestion] = useState(false);
+
+  // Load recent searches on mount
+  useEffect(() => {
+    const loadRecentSearches = async () => {
+      try {
+        const savedSearches = await AsyncStorage.getItem('recentSearches');
+        if (savedSearches) {
+          setRecentSearches(JSON.parse(savedSearches));
+        }
+      } catch (error) {
+        console.error('Failed to load recent searches', error);
+      }
+    };
+
+    loadRecentSearches();
+  }, []);
+
+  // Save to recent searches
+  const addToRecentSearches = async (query: string) => {
+    if (!query.trim()) return;
+
+    try {
+      // Remove duplicate if exists and add to beginning
+      const updatedSearches = [
+        query,
+        ...recentSearches.filter(item => item.toLowerCase() !== query.toLowerCase())
+      ].slice(0, 5); // Keep only 5 most recent
+
+      await AsyncStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
+      setRecentSearches(updatedSearches);
+    } catch (error) {
+      console.error('Failed to save recent search', error);
+    }
+  };
+
+  // Remove a single recent search
+  const removeRecentSearch = async (query: string) => {
+    try {
+      const updatedSearches = recentSearches.filter(item => item !== query);
+      await AsyncStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
+      setRecentSearches(updatedSearches);
+    } catch (error) {
+      console.error('Failed to remove recent search', error);
+    }
+  };
+
+  // Clear all recent searches
+  const clearRecentSearches = async () => {
+    try {
+      await AsyncStorage.removeItem('recentSearches');
+      setRecentSearches([]);
+    } catch (error) {
+      console.error('Failed to clear recent searches', error);
+    }
+  };
 
   // Core search functions
   const searchAll = async (query: string) => {
@@ -116,26 +174,22 @@ export default function SearchScreen() {
           break;
 
         case 'profiles':
-          // Enhanced profile search for better name matching
           const profileSearchTerms = query.trim().split(' ');
           let profileQuery = '';
 
           if (profileSearchTerms.length === 1) {
-            // Single term - search in both first and last name
             profileQuery = `first_name.ilike.%${query}%,last_name.ilike.%${query}%`;
           } else if (profileSearchTerms.length >= 2) {
-            // Multiple terms - try to match first and last name combinations
             const [firstName, ...lastNameParts] = profileSearchTerms;
             const lastName = lastNameParts.join(' ');
             profileQuery = `first_name.ilike.%${firstName}%,last_name.ilike.%${lastName}%,first_name.ilike.%${query}%,last_name.ilike.%${query}%`;
           }
 
-          const { data: profiles, error } = await supabase
+          const { data: profiles } = await supabase
             .from('profiles')
             .select('*')
             .or(profileQuery)
             .limit(10);
-
           results = profiles?.map(p => ({ type: 'profile' as const, data: p })) || [];
           break;
 
@@ -170,7 +224,6 @@ export default function SearchScreen() {
   // Debounced search function
   const debouncedSearch = useCallback(
     debounce((query: string, tab: ActiveTab) => {
-      // Don't run debounced search if we're searching from suggestion
       if (!isSearchingFromSuggestion) {
         performSearch(query, tab);
       }
@@ -253,15 +306,12 @@ export default function SearchScreen() {
   };
 
   const handleSuggestionPress = (suggestion: string) => {
-    // Set flag to prevent debounced search interference
     setIsSearchingFromSuggestion(true);
-
-    // Update search query
     setSearchQuery(suggestion);
     setSuggestions([]);
     setShowSuggestions(false);
+    addToRecentSearches(suggestion);
 
-    // Immediately perform search with the selected suggestion
     setTimeout(() => {
       performSearch(suggestion, activeTab);
       setIsSearchingFromSuggestion(false);
@@ -284,8 +334,9 @@ export default function SearchScreen() {
     setIsSearchingFromSuggestion(false);
     setShowSuggestions(false);
     setSuggestions([]);
-    // Force a search immediately on submit
+    
     if (searchQuery.trim()) {
+      addToRecentSearches(searchQuery);
       if (activeTab === 'all') {
         searchAll(searchQuery);
       } else {
@@ -297,10 +348,9 @@ export default function SearchScreen() {
   const handleTabPress = (tab: ActiveTab) => {
     setActiveTab(tab);
     setIsSearchingFromSuggestion(false);
-    // Hide suggestions when changing tabs
     setShowSuggestions(false);
     setSuggestions([]);
-    // If there's a search query, immediately search with new tab
+    
     if (searchQuery.trim()) {
       performSearch(searchQuery, tab);
     }
@@ -442,10 +492,18 @@ export default function SearchScreen() {
                 autoFocus
                 returnKeyType="search"
                 onSubmitEditing={handleSearchSubmit}
-                onFocus={() => setShowSuggestions(suggestions.length > 0 && searchQuery.trim().length > 0)}
+                onFocus={() => {
+                  if (searchQuery.trim().length > 0) {
+                    setShowSuggestions(suggestions.length > 0);
+                  } else {
+                    setShowRecentSearches(true);
+                  }
+                }}
                 onBlur={() => {
-                  // Delay hiding suggestions to allow for suggestion tap
-                  setTimeout(() => setShowSuggestions(false), 150);
+                  setTimeout(() => {
+                    setShowSuggestions(false);
+                    setShowRecentSearches(false);
+                  }, 150);
                 }}
               />
               {searchQuery.length > 0 && (
@@ -543,6 +601,50 @@ export default function SearchScreen() {
             </Text>
           </View>
         )
+      ) : showRecentSearches && recentSearches.length > 0 ? (
+        <View style={styles.emptyContainer}>
+          <View style={styles.recentHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Recent Searches
+            </Text>
+            <TouchableOpacity onPress={clearRecentSearches}>
+              <Text style={[styles.clearButtonText, { color: colors.primary }]}>
+                Clear All
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.recentSearchesContainer}>
+            {recentSearches.map((search, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.recentSearchItem,
+                  { backgroundColor: colors.card }
+                ]}
+                onPress={() => handleSuggestionPress(search)}
+              >
+                <AntDesign 
+                  name="clockcircle" 
+                  size={16} 
+                  color={colors.subtext} 
+                  style={styles.recentSearchIcon} 
+                />
+                <Text style={[styles.recentSearchText, { color: colors.text }]}>
+                  {search}
+                </Text>
+                <TouchableOpacity 
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    removeRecentSearch(search);
+                  }}
+                  style={styles.recentSearchDelete}
+                >
+                  <AntDesign name="close" size={16} color={colors.subtext} />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
       ) : (
         <View style={styles.emptyContainer}>
           <View style={[styles.emptyIconContainer, { backgroundColor: colors.card }]}>
@@ -744,9 +846,10 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 32,
+    paddingTop: 40,
     gap: 16,
   },
   emptyIconContainer: {
@@ -768,5 +871,43 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.7,
     lineHeight: 22,
+  },
+  recentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  sectionTitle: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 18,
+  },
+  clearButtonText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+  },
+  recentSearchesContainer: {
+    width: '100%',
+    paddingHorizontal: 16,
+  },
+  recentSearchItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  recentSearchIcon: {
+    marginRight: 12,
+  },
+  recentSearchText: {
+    flex: 1,
+    fontFamily: 'Inter-Regular',
+    fontSize: 16,
+  },
+  recentSearchDelete: {
+    padding: 4,
   },
 });

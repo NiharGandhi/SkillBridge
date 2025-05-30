@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Dimensions, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Database } from '../../types/supabase';
@@ -48,6 +48,7 @@ export default function ExploreScreen() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [filteredOpportunities, setFilteredOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
   const [selectedLocation, setSelectedLocation] = useState('All Locations');
@@ -79,6 +80,28 @@ export default function ExploreScreen() {
       console.error('Error fetching opportunities:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const { data, error } = await supabase
+        .from('opportunities')
+        .select(`
+          *,
+          company:companies(name, logo_url)
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOpportunities(data || []);
+      setFilteredOpportunities(data || []);
+    } catch (error) {
+      console.error('Error refreshing opportunities:', error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -258,6 +281,15 @@ export default function ExploreScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.opportunityList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]} // Android
+              tintColor={colors.primary} // iOS
+              titleColor={colors.text}
+            />
+          }
         />
       )}
     </SafeAreaView>
